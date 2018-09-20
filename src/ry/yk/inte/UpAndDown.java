@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.util.UUID;
 
 public abstract class UpAndDown {
-    protected static final String downloadpath = "F:\\IDEA_Java\\download_upload\\src\\ry\\yk\\resource";//上传下载路径
+    protected static final String downloadpath = "resource";//上传下载路径
     protected String choosepath = null;//选择路径
     protected int offset;//偏移量
     public abstract void setChoosepath(JTextArea jtf);//设置路径

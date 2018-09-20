@@ -3,13 +3,16 @@ package ry.yk.imp;
 import ry.yk.inte.IUpload;
 import ry.yk.inte.UpAndDown;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.io.*;
 
 public class Upload extends UpAndDown implements IUpload {
     private String suffix = "";
+    private String watermark_path = "resource\\watermark\\kksy.png";
     @Override
     public JButton setUploadButton(JTextArea jtf) {
 
@@ -37,21 +40,52 @@ public class Upload extends UpAndDown implements IUpload {
     public void upload(String name) {
         File sou = new File(choosepath);
         File up = new File(downloadpath + "\\" + getUUID() + suffix);
+        if(!(suffix.equals(".jpg") || suffix.equals(".png") || suffix.equals(".jpeg")))
+        {
+            try {
+                FileInputStream fin = new FileInputStream(sou);
+                FileOutputStream fout = new FileOutputStream(up);
 
-        try {
-            FileInputStream fin = new FileInputStream(sou);
-            FileOutputStream fout = new FileOutputStream(up);
+                byte [] by = new byte[8*1024];
+                int len = fin.read(by);
+                while(len != -1){
+                    fout.write(by,0,len);
+                    len = fin.read(by);
+                }
 
-            byte [] by = new byte[8*1024];
-            int len = fin.read(by);
-            while(len != -1){
-                fout.write(by,0,len);
-                len = fin.read(by);
+                fin.close();
+                fout.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        }
+        else
+        {
+            setWatermark(sou);
+        }
+        JOptionPane.showConfirmDialog(null, "上传成功", "提示",JOptionPane.YES_NO_OPTION);
 
-            fin.close();
-            fout.close();
-            JOptionPane.showConfirmDialog(null, "上传成功", "提示",JOptionPane.YES_NO_OPTION);
+    }
+
+    @Override
+    public void setWatermark(File source) {
+        try {
+            File file = source;//图片源
+        File syfile = new File(watermark_path);//水印路径
+        Image sourceimage = ImageIO.read(file);//源图片
+        Image wetermark = ImageIO.read(syfile);//水印
+
+            //创建图像缓冲区
+        BufferedImage image = new BufferedImage(sourceimage.getWidth(null),sourceimage.getHeight(null),BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics =  image.createGraphics();
+        graphics.drawImage(sourceimage, 0, 0, sourceimage.getWidth(null), sourceimage.getHeight(null), null);
+        graphics.drawImage(wetermark, 0, 0, sourceimage.getWidth(null), sourceimage.getHeight(null), null);
+        graphics.dispose();
+        FileOutputStream out = new FileOutputStream(downloadpath+ "\\" + getUUID() + suffix);
+        ImageIO.write(image, "JPG", out);//写
+        out.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
